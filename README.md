@@ -49,6 +49,7 @@ Additional Files present in the repo:
 4. inventory.ini: contains the list of hosts and their public ips 
 
 References:
+
 [1] https://www.middlewareinventory.com/blog/ansible-aws-ec2/
 
 [2] https://www.coachdevops.com/2021/07/ansible-playbook-for-provisioning-new.html
