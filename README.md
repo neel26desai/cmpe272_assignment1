@@ -45,7 +45,7 @@ To test:
 Additional Files present in the repo:
 1. app1.py: contains the python code which will run on host1
 2. app2.py: contains the python code which will run on host2
-3. run.sh: contains the commands needed to be run for each file
+3. run_commands.sh: contains the commands needed to be run for each file
 4. inventory.ini: contains the list of hosts and their public ips 
 
 References:
