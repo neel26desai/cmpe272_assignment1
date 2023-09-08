@@ -1,0 +1,12 @@
+---
+#running the flask apps on both server
+- name: Run Flask Server
+  hosts: host1,host2
+  remote_user: ec2-user  # Adjust as per your EC2 instance's setup
+  gather_facts: no
+
+  tasks:
+  - name: Inide a tmux session
+    command:
+      cmd: tmux new-session -d -s flask_session 'python3 /home/ec2-user/app.py'
+

@@ -1,0 +1,43 @@
+- name: Install Flask on the new EC2 instance
+  hosts: host1,host2
+  gather_facts: False
+  remote_user: ec2-user  # Adjust as per your EC2 instance's setup
+  tasks:
+
+    - name: Update the package list
+      become: yes
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Python
+      become: yes
+      yum:
+        name: python3
+        state: present
+
+    - name: Install pip
+      become: yes
+      yum:
+        name: python3-pip
+        state: present
+    
+    - name: Install tmux 
+      become: yes
+      yum:
+        name: tmux
+        state: present
+    
+    - name: Install htop
+      become: yes
+      yum:
+        name: htop
+        state: present
+
+    - name: Install Flask
+      become: yes
+      pip:
+        name: flask
+        state: present
+    
+ 

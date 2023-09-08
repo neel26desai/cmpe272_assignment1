@@ -1,0 +1,79 @@
+- name:  Deleting EC2 instances and security groupusing Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tags: deletion
+
+  vars:
+    keypair: ec2-demo
+    instance_type: t2.micro
+    image: ami-03f2f5212f24db70a
+    wait: yes
+    group: webserver
+    count: 1
+    region: us-west-1
+    security_group_name: allow-all
+    instance_name1: WebServer1
+    instance_name2: WebServer2
+  
+  tasks:
+    
+      
+    - name: Check if EC2 instance with the specified name tag is already running
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:u_name": "{{ instance_name1 }}"
+          instance-state-name: running
+      register: ec2_info
+    
+    - name: Debug EC2 response
+      debug:
+        var: ec2_info
+    
+    - name: EC2 Instance Deletion 1 # 2 delete instance 1
+      amazon.aws.ec2_instance:
+        key_name : "{{keypair}}"
+        region : "{{region}}"
+        name : "{{instance_name1}}"
+        state: terminated
+        wait: true
+      register : ec2
+      when: ec2_info.instances|length != 0 #only run when more than 0 instances are running
+    
+    - name: Debug EC2 response
+      debug:
+        var: ec2
+        
+    - name: Check if EC2 instance with the specified name tag is already running
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:u_name": "{{ instance_name2 }}"
+          instance-state-name: running
+      register: ec2_info2
+    
+    - name: EC2 Instance Deletion 2 # 2 delete instance 2 
+      amazon.aws.ec2_instance:
+        key_name : "{{keypair}}"
+        region : "{{region}}"
+        name : "{{instance_name2}}"
+        state: terminated
+        wait: true
+      register : ec2_2
+      when: ec2_info2.instances|length != 0 #only run when more than 0 instances are running
+    
+    - name: SecurityGroup Deletion # Delete Security Group
+      amazon.aws.ec2_group: 
+          name: "{{security_group_name}}"
+          state: absent
+          
+      
+  
+  
+
+
+
+ 
+       
+       

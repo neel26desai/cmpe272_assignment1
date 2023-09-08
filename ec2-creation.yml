@@ -1,0 +1,111 @@
+- name:  provisioning EC2 instances using Ansible
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tags: provisioning
+
+  vars:
+    keypair: ec2-demo
+    instance_type: t2.micro
+    image: ami-03f2f5212f24db70a
+    wait: yes
+    group: webserver
+    count: 1
+    region: us-west-1
+    security_group_name: allow-all
+    instance_name1: WebServer1
+    instance_name2: WebServer2
+  
+  tasks:
+    - name: SecurityGroup Creation # 1 - Create my security group
+      amazon.aws.ec2_group: 
+        name: "{{security_group_name}}"
+        description: Security Group to allow all traffic
+        region: "{{region}}"
+        rules:
+            - proto: all
+              cidr_ip: 0.0.0.0/0
+        rules_egress:
+            - proto: all
+              cidr_ip: 0.0.0.0/0
+        tags:
+            u_name : "{{security_group_name}}"
+        
+      register: security_group 
+      
+    - name: Check if EC2 instance with the specified name tag is already running
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:u_name": "{{ instance_name1 }}"
+          instance-state-name: running
+      register: ec2_info
+    
+    # - name: Debug EC2 response
+    #   debug:
+    #     var: ec2_info
+    
+    - name: EC2 Instance Creation # 2 Launch the new EC2 Instance
+      amazon.aws.ec2_instance:
+        key_name : "{{keypair}}"
+        region : "{{region}}"
+        count : "{{count}}"
+        image_id : "{{image}}"
+        instance_type: "{{instance_type}}"
+        name : "{{instance_name1}}"
+        security_group  : "{{security_group_name}}"
+        state: running
+        wait: true
+        tags:
+          u_name : "{{instance_name1}}"
+      register : ec2
+      when: ec2_info.instances|length == 0 #only run when no instance with the specified name tag is running
+    
+    - name: Public IP WebServer 1
+      debug:
+        var: ec2.instances[0].network_interfaces[0].association.public_ip
+    
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ ec2.instances[0].network_interfaces[0].association.public_ip }}"
+        groups: newly_created
+    
+    - name: Check if EC2 instance with the specified name tag is already running
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:u_name": "{{ instance_name2 }}"
+          instance-state-name: running
+      register: ec2_info2
+    
+    - name: EC2 Instance Creation # 2 Launch the new EC2 Instance
+      amazon.aws.ec2_instance:
+        key_name : "{{keypair}}"
+        region : "{{region}}"
+        count : "{{count}}"
+        image_id : "{{image}}"
+        instance_type: "{{instance_type}}"
+        name : "{{instance_name2}}"
+        security_group  : "{{security_group_name}}"
+        state: running
+        wait: true
+        tags:
+          u_name : "{{instance_name2}}"
+      register : ec2_2
+      when: ec2_info2.instances|length == 0 #only run when no instance with the specified name tag is running
+    
+    - name: Public IP WebServer 1
+      debug:
+        var: ec2_2.instances[0].network_interfaces[0].association.public_ip
+    
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ ec2_2.instances[0].network_interfaces[0].association.public_ip }}"
+        groups: newly_created
+    
+
+
+
+ 
+       
+       
