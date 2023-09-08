@@ -19,9 +19,12 @@ Playbooks, Tasks and how to run:
 Before moving to the next playbooks make sure you put the public IP of the new instances created inside a file and name it inventory.ini in the following manner host1 ansible_host=public_ip
 
 As these are new hosts you would need to add their SSH identity to your system to do so we will ping each host one by one.
-    - 1. ansible -i ./inventory.ini -m ping host1 --key-file="./ec2-demo.pem" --user "ec2-user"
-    - On running it you will be asked if you want to add the SSH fingerprint, type yes and press enter. The path after -i is the path to your inventory.ini file . The --key-file includes the path to the pem file previously saved. We are using an Amazon Linux Instance image, which has default user "ec2-user" hence we specify that as our user.
-    - 2. ansible -i ./inventory.ini -m ping host2 --key-file="./ec2-demo.pem" --user "ec2-user"
+    - ansible -i ./inventory.ini -m ping host1 --key-file="./ec2-demo.pem" --user "ec2-user"
+    
+    - On running it you will be asked if you want to add the SSH fingerprint, type yes and press enter. The path after -i is the path to your inventory.ini file . The --key-file includes the path to the pem file previously saved. We are using an Amazon Linux Instance image, which has the default user "ec2-user" hence we specify that as our user.
+    
+    - ansible -i ./inventory.ini -m ping host2 --key-file="./ec2-demo.pem" --user "ec2-user"
+    
     - Do the same thing as the above
 
 2. **installing_dependencies.yml** : This playbook includes play to install our dependencies and packages on the EC2 instances, we use single play to install dependencies on both servers. We install tmux, htop, pip3 and Flask.
